@@ -1,2 +1,5 @@
-test
-teste
+TEST
+BONJOUR
+AUREVOIR
+JE
+JEAN
