@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 public class GrilleLettres {
     
@@ -85,7 +86,27 @@ public class GrilleLettres {
 		}        
     }
 
-
+    /** Permet de connaitre les dès situé autour d'un dè sélectionné*/
+    public ArrayList<De> getListeDesAdjacents(int x, int y){
+    	ArrayList<De> desAdjacents = new ArrayList<De>();
+    	if (x>0 && y>0 && grille[x-1][y-1]!=null )
+    		desAdjacents.add(grille[x-1][y-1]);
+    	if (x>0 && grille[x-1][y]!=null)
+    		desAdjacents.add(grille[x-1][y]);
+    	if (x>0 && y<dimension-1 && grille[x-1][y+1]!=null)
+    		desAdjacents.add(grille[x-1][y+1]);
+    	if (y>0 && grille[x][y-1]!=null)
+    		desAdjacents.add(grille[x][y-1]);
+    	if (y<dimension-1 && grille[x][y+1]!=null)
+    		desAdjacents.add(grille[x][y+1]);
+    	if (x<dimension-1 && y>0 && grille[x+1][y-1]!=null)
+    		desAdjacents.add(grille[x+1][y-1]);
+    	if (x<dimension-1 && grille[x+1][y]!=null)
+    		desAdjacents.add(grille[x+1][y]);
+    	if (x<dimension-1 && y<dimension-1 && grille[x+1][y+1]!=null)
+    		desAdjacents.add(grille[x+1][y+1]);
+    	return desAdjacents;
+    }
     
     
 
@@ -103,6 +124,9 @@ public class GrilleLettres {
     	System.out.println(g);
     	g.initGrilleDepuisFichier("config/des-4x4.csv");
     	System.out.println(g);
+    	ArrayList<De> list = g.getListeDesAdjacents(3,2);
+    	System.out.println(list);
+    	
 	}
     
 }
