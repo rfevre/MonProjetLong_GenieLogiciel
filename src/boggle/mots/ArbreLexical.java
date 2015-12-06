@@ -9,41 +9,52 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import boggle.autre.Utils;
+
 /**
  * La classe ArbreLexical permet de stocker de façon compacte et d'accéder
  * rapidement à un ensemble de mots.
  */
 public class ArbreLexical {
+
 	public static final int TAILLE_ALPHABET = 26;
-	private boolean estMot; // vrai si le noeud courant est la fin d'un mot valide
+	private boolean estMot; 
 	private int nbFils;
 	private String lettre;
-	private ArbreLexical[] fils = new ArbreLexical[TAILLE_ALPHABET]; // les sous-arbres
+	private ArbreLexical[] fils = new ArbreLexical[TAILLE_ALPHABET]; 
 	private int[] indexesFils = new int[TAILLE_ALPHABET];
 
-	/** Crée un arbre vide (sans aucun mot) */
+	
+	// CONSTRUCTEURS //////////////////////////////////////////////////////////
+	
 	public ArbreLexical() {
 		this.estMot = false;
-		this.nbFils = 0;
 		this.lettre = "";
+		this.nbFils = 0;
 	}
 	
-	public void setLettre(String lettre){ this.lettre = lettre; }
+	
+	// GET-SET ////////////////////////////////////////////////////////////////
+	
 	public int getNbFils() { return nbFils; }  
+	public void setLettre(String lettre){ this.lettre = lettre; }
 	public void setNbFils(int nbFils) { this.nbFils = nbFils; }
 	
-	/**
-	 * Indique si le noeud courant est situé à l'extrémité d'un mot valide
-	 */
+	public String toString(){ return this.lettre ; }
+	
+	
+	// PUBLIC METHODS /////////////////////////////////////////////////////////
+	
+	/** Indique si le noeud courant est situé à l'extrémité d'un mot valide */
 	public boolean estMot() { return estMot; }
 
 	/**
 	 * Place le mot spécifié dans l'arbre
-	 * 
-	 * @return <code>true</code> si le mot a été ajouté, <code>false</code>
-	 *         sinon
+	 * @param word : mot à ajouter
+	 * @return <b>true</b> si le mot a été ajouté, <b>false</b> sinon
 	 */
 	public boolean ajouter(String word) {
+		if(word == null || word.length() == 0) return false;
 		char lettre = word.charAt(0);
 		int index = lettre - 65;
 		if(this.fils[index] == null){
@@ -61,14 +72,13 @@ public class ArbreLexical {
 
 	/**
 	 * Teste si l'arbre lexical contient le mot spécifié.
-	 * 
+	 * @param word : mot à trouver
 	 * @return <code>true</code> si <code>o</code> est un mot (String) contenu
-	 *         dans l'arbre, <code>false</code> si <code>o</code> n'est pas une
-	 *         instance de String ou si le mot n'est pas dans l'arbre lexical.
+	 * dans l'arbre, <code>false</code> si <code>o</code> n'est pas une
+	 * instance de String ou si le mot n'est pas dans l'arbre lexical.
 	 */
 	public boolean contient(String word) {
-		
-		if(word.isEmpty()) return false;
+		if(word == null || word.isEmpty()) return false;
 		word = word.toUpperCase();
 		final char lettre = word.charAt(0);
 		final int index = lettre - 65;
@@ -87,6 +97,7 @@ public class ArbreLexical {
 	 *         <code>false</code> sinon.
 	 */
 	public boolean motsCommencantPar(String prefixe, List<String> resultat) {
+		if(resultat == null || prefixe == null || prefixe.isEmpty()) return false;
 		final int taille = resultat.size();
 		final ArbreLexical parent = getArbreFromString(prefixe);
 		if(parent == null || parent.nbFils == 0){ return false; }
@@ -94,7 +105,6 @@ public class ArbreLexical {
 		return taille != resultat.size() ;
 	}
 
-	
 	/**
 	 * Permet de recupere la liste des mots contenus dans un arbre
 	 * et de les prefixes par une chaine.
@@ -129,8 +139,10 @@ public class ArbreLexical {
 	
 	/**
 	 * Crée un arbre lexical qui contient tous les mots du fichier spécifié.
+	 * @param fichier : chemin vers le fichier source
+	 * @return ArbreLexical representant le contenu du ficher.
 	 */
-	public static ArbreLexical lireMots(String fichier) {
+	public static ArbreLexical creerArbreDepuisFichier(String fichier) {
 		ArbreLexical arbre = new ArbreLexical();
 		try {
 			final File f = new File(fichier);
@@ -160,21 +172,10 @@ public class ArbreLexical {
 		return arbre;
 	}
 	
-	/**
-	 * Méthode toString qui renvoi l'attribut lettre
-	 */
-	public String toString(){
-		return this.lettre ;	
-	}
 	
-	/**
-	 * 
-	 * Affiche l'arbre
-	 * 
-	 * @param k : valeur du décalage (pour l'affichage)
-	 */
+	/** Affiche le contenu de l'arbre */
 	public void afficherArbre(int k){
-		System.out.println( repeter(" ║ ", k) + " ╠═ " +this );
+		System.out.println( Utils.repeter(" ║ ", k) + " ╠═ " +this );
 		for(int i=0; i< TAILLE_ALPHABET ; i++) {
 			 ArbreLexical arbre = fils[i];
 			 if (arbre!=null) {
@@ -183,34 +184,28 @@ public class ArbreLexical {
 		 }
 	}
 	
-
-	/**
-	 * 
-	 * Permet de répéter une chaine
-	 * 
-	 * @param str : Chaine à répéter
-	 * @param nb : Nombre de répétition
-	 * @return
-	 */
-	private static String repeter(String str, int nb){
-		   return new String(new char[nb]).replace("\0", str);
-	}
-	
-	
-
-	public static void main(String[] args) {
-		ArbreLexical a = ArbreLexical.lireMots("config/dico.txt");
-		a.afficherArbre(0);
-		System.out.println(a.contient("TES"));
+	/** Permet de verifier que les mots qui sont dans la liste sont dans le dictionnaire */
+	public List<String> sontDansLeDictionnaire(List<String> listeMots){
+		if(listeMots == null) return null;
+		final ArrayList<String> tmp = new ArrayList<String>();
 		
-		ArrayList<String> res = new ArrayList<String>();
-
- 		//a.motsCommencantPar("JAVAN", res);
- 		//System.out.println(res);
-		ArbreLexical n = a.getArbreFromString("TE");
-		n.getListeMots("->", res);
- 		System.out.println(res);
+		for(String mot : listeMots){
+			if(this.contient(mot)){
+				tmp.add(mot);
+			}
+		}
+		return tmp;
 	}
+	
+	// PRIVATE METHODS ////////////////////////////////////////////////////////
+
+	
+	
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+
 
 	
 
